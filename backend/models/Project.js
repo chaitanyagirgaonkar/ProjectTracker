@@ -34,6 +34,7 @@ const projectSchema = new mongoose.Schema(
     credentials: { type: String, trim: true, default: '' },
     localUrl: { type: String, trim: true, default: '' },
     localCredentials: { type: String, trim: true, default: '' },
+    whoWorkedOn: { type: String, trim: true, default: '' },
     rolesInvolved: { type: String, trim: true, default: '' },
   },
   {

@@ -4,12 +4,37 @@ const ALLOWED_SORT_FIELDS = new Set([
   'projectDomain',
   'projectTitle',
   'typeOfApp',
+  'whoWorkedOn',
   'technologyUsed',
   'database',
   'hostingPlatform',
+  'publishedUrl',
   'createdAt',
   'updatedAt',
 ]);
+
+const SEARCHABLE_FIELDS = [
+  'projectDomain',
+  'projectTitle',
+  'typeOfApp',
+  'applicationBrief',
+  'featuresImplemented',
+  'technologyUsed',
+  'database',
+  'dbUserPassword',
+  'dbOwnership',
+  'apisUsed',
+  'gitRepo',
+  'hostingPlatform',
+  'localCodeAvailability',
+  'localDb',
+  'publishedUrl',
+  'credentials',
+  'localUrl',
+  'localCredentials',
+  'whoWorkedOn',
+  'rolesInvolved',
+];
 
 const buildQuery = (queryParams) => {
   const { search, domain, appType, technology, db } = queryParams;
@@ -17,14 +42,7 @@ const buildQuery = (queryParams) => {
 
   if (search) {
     const regex = new RegExp(search, 'i');
-    query.$or = [
-      { projectDomain: regex },
-      { projectTitle: regex },
-      { applicationBrief: regex },
-      { technologyUsed: regex },
-      { featuresImplemented: regex },
-      { rolesInvolved: regex },
-    ];
+    query.$or = SEARCHABLE_FIELDS.map((field) => ({ [field]: regex }));
   }
 
   if (domain) {

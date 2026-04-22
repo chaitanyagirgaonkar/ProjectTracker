@@ -28,6 +28,8 @@ import {
   TableSortLabel,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded'
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
@@ -58,21 +60,19 @@ const fieldConfig = [
   { key: 'localCodeAvailability', label: 'Local Code Availability' },
   { key: 'localDb', label: 'Local DB' },
   { key: 'publishedUrl', label: 'Published URL' },
-  { key: 'credentials', label: 'Credentials' },
+  { key: 'credentials', label: 'Credentials', multiline: true },
   { key: 'localUrl', label: 'Local URL' },
   { key: 'localCredentials', label: 'Local Credentials' },
+  { key: 'whoWorkedOn', label: "Project Developer's" },
   { key: 'rolesInvolved', label: 'Roles Involved' },
 ]
 
 const tableColumns = [
-  { key: 'projectDomain', label: 'Domain' },
   { key: 'projectTitle', label: 'Project Title' },
+  { key: 'projectDomain', label: 'Domain' },
   { key: 'typeOfApp', label: 'App Type' },
-  { key: 'technologyUsed', label: 'Technology' },
-  { key: 'database', label: 'Database' },
+  { key: 'whoWorkedOn', label: "Project Developer's" },
   { key: 'hostingPlatform', label: 'Hosting' },
-  { key: 'publishedUrl', label: 'Published URL' },
-  { key: 'rolesInvolved', label: 'Roles Involved' },
 ]
 
 const initialFormState = fieldConfig.reduce((acc, item) => {
@@ -88,6 +88,9 @@ const initialFormState = fieldConfig.reduce((acc, item) => {
 const appTypeOptions = ['All', 'Web', 'Mobile', 'Windows']
 
 function App() {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -291,6 +294,21 @@ function App() {
     setSortOrder('asc')
   }
 
+  const renderCellValue = (project, columnKey) => {
+    if (columnKey === 'typeOfApp') {
+      return (
+        <Chip
+          size="small"
+          label={project[columnKey] || '-'}
+          color="primary"
+          variant="outlined"
+        />
+      )
+    }
+
+    return project[columnKey] || '-'
+  }
+
   return (
     <Box className="dashboard-shell">
       <Paper className="header-banner" elevation={0}>
@@ -306,14 +324,6 @@ function App() {
               Manage and automate project records with centralized CRUD control.
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            color="secondary"
-            startIcon={<AddCircleOutlineRoundedIcon />}
-            onClick={openCreateModal}
-          >
-            Add Project
-          </Button>
         </Stack>
       </Paper>
 
@@ -394,6 +404,14 @@ function App() {
               color="primary"
               variant="outlined"
             />
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<AddCircleOutlineRoundedIcon />}
+              onClick={openCreateModal}
+            >
+              Add Project
+            </Button>
           </Stack>
         </Stack>
 
@@ -403,89 +421,173 @@ function App() {
           </Alert>
         )}
 
-        <TableContainer sx={{ maxHeight: 570 }}>
-          <Table stickyHeader size="small">
-            <TableHead>
-              <TableRow>
-                {tableColumns.map((column) => (
-                  <TableCell key={column.key}>
-                    <TableSortLabel
-                      active={sortBy === column.key}
-                      direction={sortBy === column.key ? sortOrder : 'asc'}
-                      onClick={() => handleSort(column.key)}
+        {isMobile ? (
+          <Box className="mobile-project-list">
+            {loading ? (
+              <Box sx={{ py: 5, display: 'flex', justifyContent: 'center' }}>
+                <CircularProgress size={28} />
+              </Box>
+            ) : projects.length === 0 ? (
+              <Box sx={{ py: 4, textAlign: 'center' }}>
+                No projects found for selected filters.
+              </Box>
+            ) : (
+              projects.map((project) => (
+                <Card
+                  key={project._id}
+                  className="project-mobile-card"
+                  onClick={() => openDetailsModal(project)}
+                >
+                  <CardContent sx={{ pb: 1 }}>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      spacing={1}
                     >
-                      {column.label}
-                    </TableSortLabel>
-                  </TableCell>
-                ))}
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={tableColumns.length + 1} align="center">
-                    <Box sx={{ py: 5 }}>
-                      <CircularProgress size={28} />
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ) : projects.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={tableColumns.length + 1} align="center">
-                    <Box sx={{ py: 4 }}>No projects found for selected filters.</Box>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                projects.map((project) => (
-                  <TableRow
-                    key={project._id}
-                    hover
-                    className="project-row"
-                    onClick={() => openDetailsModal(project)}
-                  >
-                    {tableColumns.map((column) => (
-                      <TableCell key={column.key}>
-                        {column.key === 'typeOfApp' ? (
-                          <Chip
-                            size="small"
-                            label={project[column.key] || '-'}
-                            color="primary"
-                            variant="outlined"
-                          />
-                        ) : (
-                          project[column.key] || '-'
-                        )}
-                      </TableCell>
-                    ))}
-                    <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                      <IconButton
+                      <Typography variant="h6" sx={{ fontSize: '1rem' }}>
+                        {project.projectTitle || '-'}
+                      </Typography>
+                      <Chip
+                        size="small"
+                        label={project.typeOfApp || '-'}
                         color="primary"
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          openEditModal(project)
-                        }}
-                        aria-label="edit project"
+                        variant="outlined"
+                      />
+                    </Stack>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.6 }}>
+                      {project.projectDomain || '-'}
+                    </Typography>
+
+                    <Grid container spacing={1} sx={{ mt: 0.6 }}>
+                      <Grid size={6}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                          Project Developer's
+                        </Typography>
+                        <Typography variant="body2">{project.whoWorkedOn || '-'}</Typography>
+                      </Grid>
+                      <Grid size={6}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                          Hosting
+                        </Typography>
+                        <Typography variant="body2">{project.hostingPlatform || '-'}</Typography>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+
+                  <Stack
+                    direction="row"
+                    justifyContent="flex-end"
+                    spacing={0.4}
+                    className="mobile-action-strip"
+                  >
+                    <IconButton
+                      color="primary"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        openEditModal(project)
+                      }}
+                      aria-label="edit project"
+                    >
+                      <EditOutlinedIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      color="error"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        handleDeleteProject(project._id)
+                      }}
+                      aria-label="delete project"
+                    >
+                      <DeleteOutlineRoundedIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                </Card>
+              ))
+            )}
+          </Box>
+        ) : (
+          <TableContainer sx={{ maxHeight: 570, overflowX: 'auto' }}>
+            <Table stickyHeader size="small" sx={{ minWidth: 760 }}>
+              <TableHead>
+                <TableRow>
+                  {tableColumns.map((column) => (
+                    <TableCell key={column.key}>
+                      <TableSortLabel
+                        active={sortBy === column.key}
+                        direction={sortBy === column.key ? sortOrder : 'asc'}
+                        onClick={() => handleSort(column.key)}
                       >
-                        <EditOutlinedIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          handleDeleteProject(project._id)
-                        }}
-                        aria-label="delete project"
-                      >
-                        <DeleteOutlineRoundedIcon fontSize="small" />
-                      </IconButton>
+                        {column.label}
+                      </TableSortLabel>
+                    </TableCell>
+                  ))}
+                  <TableCell align="right" className="action-cell action-cell-head">
+                    Actions
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={tableColumns.length + 1} align="center">
+                      <Box sx={{ py: 5 }}>
+                        <CircularProgress size={28} />
+                      </Box>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                ) : projects.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={tableColumns.length + 1} align="center">
+                      <Box sx={{ py: 4 }}>No projects found for selected filters.</Box>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  projects.map((project) => (
+                    <TableRow
+                      key={project._id}
+                      hover
+                      className="project-row"
+                      onClick={() => openDetailsModal(project)}
+                    >
+                      {tableColumns.map((column) => (
+                        <TableCell key={column.key}>
+                          {renderCellValue(project, column.key)}
+                        </TableCell>
+                      ))}
+                      <TableCell
+                        align="right"
+                        className="action-cell"
+                        sx={{ whiteSpace: 'nowrap' }}
+                      >
+                        <IconButton
+                          color="primary"
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            openEditModal(project)
+                          }}
+                          aria-label="edit project"
+                        >
+                          <EditOutlinedIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            handleDeleteProject(project._id)
+                          }}
+                          aria-label="delete project"
+                        >
+                          <DeleteOutlineRoundedIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
 
         <TablePagination
           component="div"

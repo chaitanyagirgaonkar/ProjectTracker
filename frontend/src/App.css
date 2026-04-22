@@ -21,11 +21,48 @@
   overflow: hidden;
 }
 
+.mobile-project-list {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.project-mobile-card {
+  cursor: pointer;
+  border: 1px solid #eee2cf;
+  border-radius: 12px;
+}
+
+.project-mobile-card:hover {
+  box-shadow: 0 8px 20px rgba(34, 45, 56, 0.08);
+}
+
+.mobile-action-strip {
+  padding: 0 12px 10px;
+}
+
 .project-row {
   cursor: pointer;
 }
 
 .project-row:hover td {
+  background: #fff8ec;
+}
+
+.action-cell {
+  position: sticky;
+  right: 0;
+  background: #fffefc;
+  z-index: 2;
+  min-width: 110px;
+  box-shadow: -8px 0 10px -10px rgba(21, 31, 41, 0.45);
+}
+
+.action-cell-head {
+  z-index: 4;
+}
+
+.project-row:hover .action-cell {
   background: #fff8ec;
 }
 
@@ -71,5 +108,9 @@
 
   .header-banner {
     padding: 18px;
+  }
+
+  .table-panel {
+    border-radius: 14px;
   }
 }
