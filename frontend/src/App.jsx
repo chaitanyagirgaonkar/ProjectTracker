@@ -32,6 +32,7 @@ import {
   useTheme,
 } from '@mui/material'
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded'
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
@@ -610,11 +611,46 @@ function App() {
         maxWidth="md"
         scroll="paper"
       >
-        <DialogTitle>
-          {editingProject ? 'Edit Project' : 'Add New Project'}
-        </DialogTitle>
-        <Box component="form" onSubmit={handleSaveProject}>
-          <DialogContent dividers>
+        <Box
+          component="form"
+          onSubmit={handleSaveProject}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
+          <Box
+            sx={{
+              position: 'sticky',
+              top: 0,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              p: 2,
+              borderBottom: '1px solid #e9e4d8',
+              backgroundColor: '#fffefc',
+              zIndex: 10,
+            }}
+          >
+            <DialogTitle sx={{ p: 0, m: 0 }}>
+              {editingProject ? 'Edit Project' : 'Add New Project'}
+            </DialogTitle>
+            <IconButton
+              aria-label="close"
+              onClick={closeModal}
+              disabled={isSaving}
+              sx={{
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                },
+              }}
+            >
+              <CloseRoundedIcon />
+            </IconButton>
+          </Box>
+          <DialogContent dividers sx={{ flex: 1, overflowY: 'auto' }}>
             <Grid container spacing={1.8}>
               {fieldConfig.map((field) => (
                 <Grid
@@ -655,7 +691,7 @@ function App() {
               ))}
             </Grid>
           </DialogContent>
-          <DialogActions sx={{ p: 2 }}>
+          <DialogActions sx={{ p: 2, borderTop: '1px solid #e9e4d8' }}>
             <Button onClick={closeModal} disabled={isSaving}>
               Cancel
             </Button>
